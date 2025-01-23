@@ -5,7 +5,7 @@
       id="search"
       type="text"
       v-model="search"
-      @input="onSearchInput"
+      @input="debouncedFn()"
       placeholder="Enter Pokémon name or ID"
     />
     <div v-if="error" class="error">{{ error }}</div>
@@ -25,15 +25,17 @@
 
 <script>
 import { PokemonSearch } from '@/services/httpClient.js';
-
+import { useDebounceFn } from '@vueuse/core';
 
 export default {
   name: 'PokeSearch',
-  data: () => ({
-    search: '',
-    pokemon: null,
-    error: null,
-  }),
+  data() {
+    return {
+      search: '',
+      pokemon: null,
+      error: null,
+    };
+  },
   methods: {
     async onSearchInput() {
       if (!this.search) {
@@ -53,7 +55,6 @@ export default {
           type1: response.types[0].type.name,
           type2: response.types[1] ? response.types[1].type.name : null,
         };
-        console.log(this.pokemon);
         this.error = null;
       } catch (err) {
         this.pokemon = null;
@@ -61,8 +62,12 @@ export default {
       }
     },
   },
+  mounted() {
+    this.debouncedFn = useDebounceFn(this.onSearchInput, 1000);
+  },
 };
 </script>
+
 
 <style>
 .Poke_Search_Templates {

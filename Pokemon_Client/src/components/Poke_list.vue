@@ -39,11 +39,13 @@ export default {
   data() {
     return {
       pokemons: [],
+      types: [],
       currentPage: 0,
       error: null,
       perPage: 30,
       PokemonDetail: null,
       showDetail: false,
+      filter: 'null',
     };
   },
   methods: {
@@ -59,6 +61,7 @@ export default {
         this.error = 'Une erreur est survenue lors de la récupération des Pokémon.';
       }
     },
+
     async showPokemonDetail(name) {
       try {
         const response = await PokemonSearch(name);
@@ -89,8 +92,22 @@ export default {
       }
     },
     fetchNextPage() {
-      this.currentPage++;
-      this.fetchPokemon();
+      if (this.pokemons.length < 43) {
+        this.currentPage++;
+        this.fetchPokemon();      
+      }
+    },
+    async fetchType (){
+      try {
+        for (let i = 1; i < 19; i++) {
+          const response = await fetchType(i);
+          this.types.push(response.name);
+        }
+
+      } catch (error) {
+        console.error('Erreur lors de la récupération des types :', error);
+        this.error = 'Une erreur est survenue lors de la récupération des types.';
+      }
     },
   },
   mounted() {

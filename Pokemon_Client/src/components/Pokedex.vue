@@ -2,13 +2,28 @@
   <div class="Pokemon_list_template">
     <h2>Pokemon List</h2>
     <div v-if="error" class="error">{{ error }}</div>
+    <div id="filter">
+      <select v-model="selectedType1" id="type1" class="type-select">
+        <option value="">Type 1</option>
+        <option v-for="type in types" :key="type" :value="type">
+          {{ type }}
+        </option>
+      </select>
+      <!-- apparait que si type 1 est remplie-->
+      <select v-model="selectedType2" id="type2" class="type-select" :disabled="!selectedType1">
+        <option value="">Type 2</option>
+        <option v-for="type in types" :key="type" :value="type">
+          {{ type }}
+        </option>
+      </select>
+    </div>
     <div class="Pokedex-table">
-      <div v-for="pokemon in pokemons" :key="pokemon.id" class="pokemon-card">
+      <div v-for="pokemon in filteredPokemons" :key="pokemon.id" class="pokemon-card">
         <p class="pokemon-name">{{ pokemon.name }}</p>
         <img :src="pokemon.url_image" :alt="pokemon.name" class="pokemon-image" />
         <ul class="pokemon-types">
           <li v-for="(type, index) in pokemon.types" :key="index" class="type">{{ type.type.name }}</li>
-        </ul>     
+        </ul>
         <p class="pokemon-experience">{{ pokemon.base_experience }}$</p>
         <div class="add-button">Acheter</div>
       </div>
@@ -22,7 +37,7 @@
 </template>
 
 <script>
-import { fetchPokemon, PokemonDetail } from '@/services/httpClient.js'; // Vérifiez vos importations
+import { fetchPokemon, PokemonDetail, fetchType } from '@/services/httpClient.js';
 
 export default {
   name: 'Pokedex',
@@ -32,7 +47,23 @@ export default {
       currentPage: 0,
       error: null,
       perPage: 18,
+      types: [],
+      selectedType1: '',
+      selectedType2: '',
     };
+  },
+  computed: {
+    filteredPokemons() {
+      return this.pokemons.filter(pokemon => {
+        const type1Match = this.selectedType1 ? pokemon.types.some(type => type.type.name === this.selectedType1) : true;
+        const type2Match = this.selectedType2 ? pokemon.types.some(type => type.type.name === this.selectedType2) : true;
+        if (pokemon > this.perPage){
+          fetchPokemon();
+          return type1Match && type2Match;
+        }
+        return type1Match && type2Match;
+      });
+    }
   },
   methods: {
     async fetchPokemon() {
@@ -48,8 +79,6 @@ export default {
           pokemon.id = response2.id;
           pokemon.base_experience = response2.base_experience;
           pokemon.types = response2.types;
-          pokemon.type1 = response2.types[0].type.name;
-          pokemon.type2 = response2.types[1] ? response2.types[1].type.name : null;
         });
 
         await Promise.all(detailPromises);
@@ -72,9 +101,21 @@ export default {
         this.fetchPokemon();
       }
     },
+    async fetchTypes() {
+      try {
+        for (let i = 1; i < 19; i++) {
+          const response = await fetchType(i);
+          this.types.push(response.name);
+        }
+      } catch (error) {
+        console.error('Erreur lors de la récupération des types :', error);
+        this.error = 'Une erreur est survenue lors de la récupération des types.';
+      }
+    },
   },
   mounted() {
     this.fetchPokemon();
+    this.fetchTypes();
   },
 };
 </script>
@@ -203,5 +244,38 @@ export default {
   margin: 5px;
   font-size: 0.9rem;
   color: #333;
+}
+/* Styles for the select elements */
+#filter {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.type-select {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #fff;
+  font-size: 1rem;
+  color: #333;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  transition: border-color 0.3s ease;
+}
+
+.type-select:focus {
+  border-color: #0288d1;
+  outline: none;
+}
+
+.type-select:disabled {
+  background-color: #f0f0f0;
+  color: #999;
+  cursor: not-allowed;
 }
 </style>

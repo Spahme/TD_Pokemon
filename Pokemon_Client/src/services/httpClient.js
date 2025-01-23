@@ -36,4 +36,8 @@ const PokemonSearch = (input) => {
 const fetchPokemon = (limit, offset) => {
     return request(`/pokemon?limit=${limit}&offset=${offset}`);
 };
-export { request, fetchPokemon, PokemonSearch, PokemonDetail };
+const fetchType = (id) => {
+    return request(`/type/${id}`);
+};
+
+export { request, fetchPokemon, PokemonSearch, PokemonDetail, fetchType };

@@ -11,6 +11,8 @@ import { RouterLink, RouterView } from 'vue-router'
         <RouterLink :to="{name:'listPokemons'}">List de pokemon</RouterLink>
         <RouterLink :to="{name:'searchPokemon'}">Recherche de pokemon</RouterLink>
         <RouterLink :to="{name:'pokedexAll'}">Pokedex</RouterLink>
+        <RouterLink :to="{name:'panier'}">Panier</RouterLink>
+
       </nav>
   </header>
   <main> 
