@@ -9,7 +9,7 @@
           {{ type }}
         </option>
       </select>
-      <!-- apparait que si type 1 est remplie-->
+      <!-- Apparaît que si type 1 est remplie -->
       <select v-model="selectedType2" id="type2" class="type-select" :disabled="!selectedType1">
         <option value="">Type 2</option>
         <option v-for="type in types" :key="type" :value="type">
@@ -36,6 +36,7 @@
   </div>
 </template>
 
+
 <script>
 import { fetchPokemon, PokemonDetail, fetchType } from '@/services/httpClient.js';
 
@@ -57,12 +58,13 @@ export default {
       return this.pokemons.filter(pokemon => {
         const type1Match = this.selectedType1 ? pokemon.types.some(type => type.type.name === this.selectedType1) : true;
         const type2Match = this.selectedType2 ? pokemon.types.some(type => type.type.name === this.selectedType2) : true;
-        if (pokemon > this.perPage){
-          fetchPokemon();
-          return type1Match && type2Match;
-        }
         return type1Match && type2Match;
       });
+    },
+    paginatedPokemons() {
+      const start = this.currentPage * this.perPage;
+      const end = start + this.perPage;
+      return this.filteredPokemons.slice(start, end);
     }
   },
   methods: {
@@ -92,13 +94,11 @@ export default {
     fetchPreviousPage() {
       if (this.currentPage > 0) {
         this.currentPage--;
-        this.fetchPokemon();
       }
     },
     fetchNextPage() {
-      if (this.currentPage < 40) {
+      if ((this.currentPage + 1) * this.perPage < this.filteredPokemons.length) {
         this.currentPage++;
-        this.fetchPokemon();
       }
     },
     async fetchTypes() {
@@ -119,6 +119,7 @@ export default {
   },
 };
 </script>
+
 
 <style scoped>
 .Pokedex {
