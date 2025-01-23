@@ -6,17 +6,17 @@ import Pokedex from './components/Pokedex.vue'
 
 const routes = [{
         path: '/list/pokemons',
-        name: 'list/pokemons',
+        name: 'listPokemons',
         component: Pokemon_list_template,
     },
     {
         path: '/search/pokemon',
-        name: 'search/pokemon',
+        name: 'searchPokemon',
         component: Poke_Search_Templates,
     },
     {
         path: '/pokedex/all',
-        redirect: 'pokedex/all',
+        name: 'pokedexAll',
         component: Pokedex,
     },
     {

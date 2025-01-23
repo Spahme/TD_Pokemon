@@ -1,5 +1,5 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterLink, RouterView } from 'vue-router' 
 </script>
 
 <template>
@@ -7,10 +7,10 @@ import { RouterLink, RouterView } from 'vue-router'
       <h1>Pokemon App</h1>
 
       <nav>
-        <RouterLink to="/home">Home</RouterLink>
-        <RouterLink to="/list/pokemons">List de pokemon</RouterLink>
-        <RouterLink to="/search/pokemon">Recherche de pokemon</RouterLink>
-        <RouterLink to="/pokedex/all">Pokedex</RouterLink>
+        <RouterLink :to="{name:'home'}">Home</RouterLink>
+        <RouterLink :to="{name:'listPokemons'}">List de pokemon</RouterLink>
+        <RouterLink :to="{name:'searchPokemon'}">Recherche de pokemon</RouterLink>
+        <RouterLink :to="{name:'pokedexAll'}">Pokedex</RouterLink>
       </nav>
   </header>
   <main> 
@@ -18,11 +18,6 @@ import { RouterLink, RouterView } from 'vue-router'
   </main>
 </template>
 
-<script>
-
-
-
-</script>
 
 <style scoped>
 header {
