@@ -71,10 +71,11 @@ export default {
     async fetchPokemon() {
       try {
         const offset = this.currentPage * this.perPage;
+        // appeler tout les pokemon et filter par type si besoin et quand la quantité atteinte ne plus push dans le tableau
         const response = await fetchPokemon(this.perPage, offset);
         this.pokemons = response.results;
         this.error = null;
-
+    
         const detailPromises = this.pokemons.map(async (pokemon) => {
           const response2 = await PokemonDetail(pokemon.url);
           pokemon.url_image = response2.sprites.front_default;
@@ -90,6 +91,7 @@ export default {
       } finally {
         document.querySelector('.Pokedex-table').scrollTop = 0;
       }
+
     },
     fetchPreviousPage() {
       if (this.currentPage > 0) {
