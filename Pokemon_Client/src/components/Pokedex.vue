@@ -88,8 +88,8 @@ export default {
       selectedType2: "",
       priceOrder: "", // Tri par prix
       isShiny: false, // Toggle shiny sprite
-      Nbtest: 0,
-      restarSearch: null,
+      Nbtest: 0, // Counter for test
+      restarSearch: null, 
       lastOffset: 0,
       Offset: 0,
     };
@@ -196,12 +196,10 @@ export default {
           this.offset += this.perPage;
           //fetch more pokemon to fill the page with match to filter
         }
+        //lastoffest = minimum id of the last pokemon in the list
         if (this.selectedType1 != "" | this.selectedType2 != "") {
           for(let i =0; i < this.pokemons.length; i++){
-            this.lastOffset = this.pokemons[i].id;
-            if(this.lastOffset > this.pokemons[i].id){
-              this.lastOffset = this.pokemons[i].id;
-            } 
+            this.lastOffset = Math.min(...this.pokemons.map((pokemon) => pokemon.id));
           }}
         this.pokemons = detailedPokemons.slice(0, this.perPage);
       } catch (error) {
@@ -211,7 +209,7 @@ export default {
         this.isLoading = false;
       }
       this.stopTimer;
-      //console.log('Nbtest = ' + this.Nbtest);
+      console.log('Nbtest = ' + this.Nbtest);
       this.restarSearch = this.Nbtest;
       this.Nbtest = 0;
     },
@@ -224,13 +222,15 @@ export default {
       this.priceOrder = "";
       this.currentPage = 0;
       this.offset = 0;
+      this.lastOffset = 0;
       this.fetchPokemon();
     },
     fetchPreviousPage() {
       if (this.currentPage > 0) {
         this.currentPage--;
         if (this.selectedType1 != "" | this.selectedType2 != "") {
-          this.offset = this.lastOffset;
+            this.offset = this.lastOffset
+          console.log('previous filter offset = ' + this.offset);
           console.log('filter offset = ' + this.offset);
         }else{
         this.offset = this.currentPage * this.perPage;
@@ -239,16 +239,12 @@ export default {
       }
     },
     fetchNextPage() {
+      //offest = max id of the last pokemon in the list
       if (this.currentPage < 43 && this.pokemons.length === this.perPage) {
         this.currentPage++;
         if (this.selectedType1 != "" | this.selectedType2 != "") {
-          for(let i =0; i < this.pokemons.length; i++){
-            this.offset = this.pokemons[i].id;
-            if(this.offset < this.pokemons[i].id){
-              this.offset = this.pokemons[i].id;
-            }
-          }
-          console.log('filter offset = ' + this.offset);
+          this.offset = Math.max(...this.pokemons.map((pokemon) => pokemon.id));
+          //console.log('filter offset = ' + this.offset);
         }else{
           this.offset = this.currentPage * this.perPage;
         }
