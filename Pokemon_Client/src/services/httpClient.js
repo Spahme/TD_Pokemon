@@ -39,5 +39,8 @@ const fetchPokemon = (limit, offset) => {
 const fetchType = (id) => {
     return request(`/type/${id}`);
 };
+const fetchPokemonNames = async() => {
+    return request(`/pokemon?limit=1118&offset=0`);
+}
 
-export { request, fetchPokemon, PokemonSearch, PokemonDetail, fetchType };
+export { request, fetchPokemon, PokemonSearch, PokemonDetail, fetchType, fetchPokemonNames };

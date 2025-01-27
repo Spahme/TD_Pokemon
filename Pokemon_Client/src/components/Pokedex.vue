@@ -2,116 +2,222 @@
   <div class="Pokemon_list_template">
     <h2>Pokemon List</h2>
     <div v-if="error" class="error">{{ error }}</div>
+    <div v-if="isLoading" class="loading-bar">
+      <div class="spinner">
+      </div>
+      <div class="timer">{{ loadingTime }}s</div>
+    </div>
+
     <div id="filter">
-      <select v-model="selectedType1" id="type1" class="type-select">
+      <select v-model="selectedType1" id="type1" class="type-select" @change="fetchPokemon">
         <option value="">Type 1</option>
         <option v-for="type in types" :key="type" :value="type">
           {{ type }}
         </option>
       </select>
-      <!-- Apparaît que si type 1 est remplie -->
-      <select v-model="selectedType2" id="type2" class="type-select" :disabled="!selectedType1">
+      <select
+        v-model="selectedType2"
+        id="type2"
+        class="type-select"
+        :disabled="!selectedType1"
+        @change="fetchPokemon"
+      >
         <option value="">Type 2</option>
         <option v-for="type in types" :key="type" :value="type">
           {{ type }}
         </option>
       </select>
+      <select id="prices" v-model="priceOrder" @change="sortPokemons">
+        <option value="">Price</option>
+        <option value="asc">Ascending</option>
+        <option value="desc">Descending</option>
+      </select>
+      <button id="shiny" @click="toggleShiny">Shiny: {{ isShiny ? 'On' : 'Off' }}</button>
+      <button @click="resetFilters">Reset</button>
     </div>
     <div class="Pokedex-table">
-      <div v-for="pokemon in filteredPokemons" :key="pokemon.id" class="pokemon-card">
+      <div v-for="pokemon in paginatedPokemons" :key="pokemon.id" class="pokemon-card">
         <p class="pokemon-name">{{ pokemon.name }}</p>
-        <img :src="pokemon.url_image" :alt="pokemon.name" class="pokemon-image" />
+        <img :src="isShiny ? pokemon.url_image.shiny : pokemon.url_image.default" :alt="pokemon.name" class="pokemon-image" />
         <ul class="pokemon-types">
-          <li v-for="(type, index) in pokemon.types" :key="index" class="type">{{ type.type.name }}</li>
+          <li v-for="(type, index) in pokemon.types" :key="index" class="type">
+            {{ type.type.name }}
+          </li>
         </ul>
-        <p class="pokemon-experience">{{ pokemon.base_experience }}$</p>
+        <div id="more">
+        <p class="pokemon-price">Price: {{ isShiny ? pokemon.base_experience * 2 : pokemon.base_experience }} $</p>
+          <div id="stats">
+            <span v-if="pokemon.stats" class="tooltip">
+              <img src="../assets/tooltips.svg" alt="info" width="20px" height="20px" />
+              <ul class="tooltiptext">
+                <li><strong>Base Stats:</strong></li>
+                <li v-for="(stat, index) in pokemon.stats" :key="index">
+                  {{ stat.name }}: {{ stat.base_stat }}
+                </li>
+              </ul>
+            </span>
+          </div>
+        </div>
         <div class="add-button">Acheter</div>
       </div>
     </div>
     <div class="pagination">
-      <button @click="fetchPreviousPage" :disabled="currentPage === 0">Previous</button>
+      <button id='prev' @click="fetchPreviousPage" :disabled="currentPage === 0">Previous</button>
       <div>{{ currentPage + 1 }}</div>
-      <button @click="fetchNextPage">Next</button>
+      <button id='next' @click="fetchNextPage">Next</button>
     </div>
   </div>
 </template>
 
-
 <script>
-import { fetchPokemon, PokemonDetail, fetchType } from '@/services/httpClient.js';
+import { fetchPokemon, PokemonDetail, fetchType } from "@/services/httpClient.js";
 
 export default {
-  name: 'Pokedex',
+  name: "Pokedex",
   data() {
     return {
+      loadingTime: 0,
+      load_timer: null,
       pokemons: [],
       currentPage: 0,
       error: null,
+      isLoading: false, // Indicateur de chargement
       perPage: 18,
       types: [],
-      selectedType1: '',
-      selectedType2: '',
+      selectedType1: "",
+      selectedType2: "",
+      priceOrder: "", // Tri par prix
+      isShiny: false, // Toggle shiny sprite
     };
   },
   computed: {
     filteredPokemons() {
-      return this.pokemons.filter(pokemon => {
-        const type1Match = this.selectedType1 ? pokemon.types.some(type => type.type.name === this.selectedType1) : true;
-        const type2Match = this.selectedType2 ? pokemon.types.some(type => type.type.name === this.selectedType2) : true;
+      let filtered = [...this.pokemons]; // Créer une copie du tableau pour éviter de modifier l'original
+
+      // Filtrage par type
+      filtered = filtered.filter((pokemon) => {
+        const type1Match = this.selectedType1
+          ? pokemon.types.some((type) => type.type.name === this.selectedType1)
+          : true;
+        const type2Match = this.selectedType2
+          ? pokemon.types.some((type) => type.type.name === this.selectedType2)
+          : true;
         return type1Match && type2Match;
       });
+
+      // Tri global par prix
+      if (this.priceOrder === "asc") {
+        filtered.sort((a, b) => a.base_experience - b.base_experience);
+      } else if (this.priceOrder === "desc") {
+        filtered.sort((a, b) => b.base_experience - a.base_experience);
+      }
+
+      return filtered;
     },
     paginatedPokemons() {
+      // Pagination des Pokémon filtrés et triés
       const start = this.currentPage * this.perPage;
       const end = start + this.perPage;
       return this.filteredPokemons.slice(start, end);
-    }
+    },
   },
   methods: {
     async fetchPokemon() {
       try {
-        const offset = this.currentPage * this.perPage;
-        // appeler tout les pokemon et filter par type si besoin et quand la quantité atteinte ne plus push dans le tableau
-        const response = await fetchPokemon(this.perPage, offset);
-        this.pokemons = response.results;
+        this.isLoading = true;
+        let offset = this.currentPage * this.perPage;
+        let detailedPokemons = [];
+        this.pokemons = [];
         this.error = null;
-    
-        const detailPromises = this.pokemons.map(async (pokemon) => {
-          const response2 = await PokemonDetail(pokemon.url);
-          pokemon.url_image = response2.sprites.front_default;
-          pokemon.id = response2.id;
-          pokemon.base_experience = response2.base_experience;
-          pokemon.types = response2.types;
-        });
 
-        await Promise.all(detailPromises);
+        while (detailedPokemons.length < this.perPage) {
+          const response = await fetchPokemon(this.perPage, offset);
+          if (!response.results.length) {
+            break;
+          }
+
+          const detailPromises = response.results.map(async (pokemon) => {
+            try {
+              const response2 = await PokemonDetail(pokemon.url);
+
+              const matchesType1 = this.selectedType1
+                ? response2.types.some((type) => type.type.name === this.selectedType1)
+                : true;
+              const matchesType2 = this.selectedType2
+                ? response2.types.some((type) => type.type.name === this.selectedType2)
+                : true;
+
+              if (matchesType1 && matchesType2) {
+                return {
+                  name: pokemon.name,
+                  url_image: { 
+                    default: response2.sprites.front_default,
+                    shiny: response2.sprites.front_shiny 
+                  },  
+                  id: response2.id,
+                  base_experience: response2.base_experience,
+                  types: response2.types,
+                  stats: response2.stats.map((stat) => ({
+                    name: stat.stat.name,
+                    base_stat: stat.base_stat,
+                  })),
+
+                };
+              }
+              return null;
+            } catch (error) {
+              console.error(`Erreur lors de la récupération des détails pour ${pokemon.name}:`, error);
+              return null;
+            }
+          });
+
+          const filteredResults = (await Promise.all(detailPromises)).filter(Boolean);
+          detailedPokemons = [...detailedPokemons, ...filteredResults];
+
+          offset += this.perPage;
+        }
+
+        this.pokemons = detailedPokemons.slice(0, this.perPage);
       } catch (error) {
-        console.error('Erreur lors de la récupération des Pokémon :', error);
-        this.error = 'Une erreur est survenue lors de la récupération des Pokémon.';
+        console.error("Erreur lors de la récupération des Pokémon :", error);
+        this.error = "Une erreur est survenue lors de la récupération des Pokémon.";
       } finally {
-        document.querySelector('.Pokedex-table').scrollTop = 0;
+        this.isLoading = false;
       }
-
+    },
+    toggleShiny() {
+      this.isShiny = !this.isShiny;
+    },
+    resetFilters() {
+      this.selectedType1 = "";
+      this.selectedType2 = "";
+      this.priceOrder = "";
+      this.currentPage = 0;
+      this.fetchPokemon();
     },
     fetchPreviousPage() {
       if (this.currentPage > 0) {
         this.currentPage--;
+        this.fetchPokemon();
       }
     },
     fetchNextPage() {
-      if ((this.currentPage + 1) * this.perPage < this.filteredPokemons.length) {
+      if (this.currentPage < 43 && this.pokemons.length === this.perPage) {
         this.currentPage++;
+        this.fetchPokemon();
       }
     },
     async fetchTypes() {
       try {
-        for (let i = 1; i < 19; i++) {
+        const types = [];
+        for (let i = 1; i <= 18; i++) {
           const response = await fetchType(i);
-          this.types.push(response.name);
+          types.push(response.name);
         }
+        this.types = types;
       } catch (error) {
-        console.error('Erreur lors de la récupération des types :', error);
-        this.error = 'Une erreur est survenue lors de la récupération des types.';
+        console.error("Erreur lors de la récupération des types :", error);
+        this.error = "Une erreur est survenue lors de la récupération des types.";
       }
     },
   },
@@ -121,9 +227,43 @@ export default {
   },
 };
 </script>
-
-
 <style scoped>
+.loading-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+  position: relative;
+}
+
+.spinner {
+  width: 80px;
+  height: 80px;
+  border: 8px solid rgba(0, 255, 255, 0.1);
+  border-top: 8px solid blue;
+  border-bottom: 8px solid blue;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.timer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #007bff;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
 .Pokedex {
   max-width: 600px;
   margin: 2rem auto;
@@ -191,7 +331,62 @@ export default {
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
+/* Tooltip for Stats */
+#stats {
+  position: relative;
+  display: inline-block;
+}
 
+.tooltip {
+  cursor: pointer;
+  color: #007bff;
+  font-size: 1.2rem;
+}
+
+.tooltiptext {
+  visibility: hidden;
+  width: 200px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 5px;
+  padding: 5px 10px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -100px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Buttons */
+#more {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+#more button,
+.add-button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 5px;
+  background-color: #007bff;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+#more button:hover,
+.add-button:hover {
+  background-color: #0056b3;
+}
 .add-button:hover {
   background-color: #0056b3;
 }
@@ -200,6 +395,12 @@ export default {
   color: red;
   text-align: center;
   margin-top: 1rem;
+}
+#next{
+  border-radius: 5px 15px 15px 15px ;
+}
+#prev{
+  border-radius: 15px 5px 15px 15px ;
 }
 
 .pagination {
@@ -214,14 +415,14 @@ export default {
   color: #01579b;
   border: none;
   padding: 0.8rem 1.2rem;
-  border-radius: 5px;
   font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  width:  100px;
 }
 
 .pagination button:hover {
-  background-color: #4fc3f7;
+  background-color: #2deef4;
 }
 
 .pagination button:disabled {

@@ -16,15 +16,29 @@
     </div>
     <div v-if="showDetail" class="popup" @click="closePopup">
       <div class="popup-content" @click.stop>
-        <h2>{{ PokemonDetail.name }}</h2>
-        <p>ID: {{ PokemonDetail.id }}</p>
-        <img :src="PokemonDetail.sprites.front_default" alt="Pokémon image" />
-        <ul>
-          <li>{{ PokemonDetail.type1 }}</li>
-          <li v-if="PokemonDetail.type2">{{ PokemonDetail.type2 }}</li>
-        </ul>
-        <p>{{ PokemonDetail.price }}</p>
-        <div class="add-button">Acheter</div>
+      <h2 class="pokemon-name">{{ PokemonDetail.name }}</h2>
+      <p class="pokemon-id">ID: {{ PokemonDetail.id }}</p>
+      <img :src="PokemonDetail.sprites.front_default" class="pokemon-image" alt="Pokémon image" />
+      <ul class="pokemon-types">
+        <li>{{ PokemonDetail.type1 }}</li>
+        <li v-if="PokemonDetail.type2">{{ PokemonDetail.type2 }}</li>
+      </ul>
+      <p class="pokemon-price">price: {{ PokemonDetail.price.default }} $</p>
+      <div id="more">      
+        <button id="shiny" @click="toggleShiny">Shiny: {{ isShiny ? 'On' : 'Off' }}</button>
+        <div id="stats">
+          <span v-if="PokemonDetail.stats" class="tooltip">
+            <img src="../assets/tooltips.svg" alt="info" width="20px" height="20px" />
+            <ul class="tooltiptext">
+              <li><strong>Base Stats:</strong></li>
+              <li v-for="(stat, index) in PokemonDetail.stats" :key="index">
+                {{ stat.name }}: {{ stat.base_stat }}
+              </li>
+            </ul>
+          </span>
+        </div>
+      </div>
+      <div class="add-button">Acheter</div>
       </div>
     </div>
   </div>
@@ -46,6 +60,7 @@ export default {
       PokemonDetail: null,
       showDetail: false,
       filter: 'null',
+      isShiny: false,
     };
   },
   methods: {
@@ -61,7 +76,16 @@ export default {
         this.error = 'Une erreur est survenue lors de la récupération des Pokémon.';
       }
     },
-
+    toggleShiny() {
+      this.isShiny = !this.isShiny;
+      if (this.isShiny === true) {
+        document.getElementsByClassName("pokemon-image")[0].src = this.PokemonDetail.sprites.shiny;
+        document.getElementsByClassName("pokemon-price")[0].textContent = `price: ${this.PokemonDetail.price.shiny} $`;
+      } else {
+        document.getElementsByClassName("pokemon-image")[0].src = this.PokemonDetail.sprites.front_default;
+        document.getElementsByClassName("pokemon-price")[0].textContent = `price: ${this.PokemonDetail.price.default} $`;
+      }
+    },
     async showPokemonDetail(name) {
       try {
         const response = await PokemonSearch(name);
@@ -70,10 +94,19 @@ export default {
           name: response.name,
           sprites: {
             front_default: response.sprites.front_default,
+            shiny: response.sprites.front_shiny,
           },
-          price: response.base_experience,
+          price: {
+            default: response.base_experience,
+            shiny: response.base_experience * 2,
+          },
           type1: response.types[0].type.name,
           type2: response.types[1] ? response.types[1].type.name : null,
+          stats: response.stats.map((stat) => ({
+            name: stat.stat.name,
+            base_stat: stat.base_stat,
+          })),
+
         };
         this.showDetail = true;
       } catch (error) {
@@ -138,11 +171,69 @@ export default {
   margin-bottom: 1rem;
   padding: 1rem;
 }
+/* Tooltip for Stats */
+#stats {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip {
+  cursor: pointer;
+  color: #007bff;
+  font-size: 1.2rem;
+}
+
+.tooltiptext {
+  visibility: hidden;
+  width: 200px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 5px;
+  padding: 5px 10px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -100px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Buttons */
+#more {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+#more button,
+.add-button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 5px;
+  background-color: #007bff;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+#more button:hover,
+.add-button:hover {
+  background-color: #0056b3;
+}
+
 ul {
   list-style-type: none;
   padding: 0;
   margin-left: 2rem;
 }
+
 li {
   margin-bottom: 0.5rem;
   padding: 0.5rem;
