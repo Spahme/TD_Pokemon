@@ -2,11 +2,7 @@
   <div class="Pokemon_list_template">
     <h2>Pokemon List</h2>
     <div v-if="error" class="error">{{ error }}</div>
-    <div v-if="isLoading" class="loading-bar">
-      <div class="spinner">
-      </div>
-      <div class="timer">{{ loadingTime }}s</div>
-    </div>
+
 
     <div id="filter">
       <select v-model="selectedType1" id="type1" class="type-select" @change="fetchPokemon">
@@ -36,6 +32,10 @@
       <button @click="resetFilters">Reset</button>
     </div>
     <div class="Pokedex-table">
+      <div v-if="isLoading" class="loading-bar">
+        <div class="spinner"></div>
+        <div class="timer">{{ loadingTime }}s|id:{{ actual_id }}</div>
+      </div>
       <div v-for="pokemon in pokemons" :key="pokemon.id" class="pokemon-card">
         <p class="pokemon-name">{{ pokemon.name }} | {{ pokemon.id }}</p>
         <img :src="isShiny ? pokemon.url_image.shiny : pokemon.url_image.default" :alt="pokemon.name" class="pokemon-image" />
@@ -90,8 +90,11 @@ export default {
       isShiny: false, // Toggle shiny sprite
       Nbtest: 0, // Counter for test
       restarSearch: null, 
-      lastOffset: 0,
+      lastOffset: null,
       Offset: 0,
+      actual_id: 0,
+      last_id: 0,
+      first_id: 0,
     };
   },
   computed: {
@@ -131,18 +134,18 @@ export default {
       }, 1000);
     },
     stopTimer() {
-      //console.log('load time = ' + this.loadingTime +"s");
+      console.log('load time = ' + this.loadingTime +"s");
       clearInterval(this.loadTimer);
       this.loadTimer = null;
     },
   },
   methods: {
     async fetchPokemon() {
+
       try {
+        this.lastOffset = this.first_id-1;
         this.isLoading = true;
         this.startTimer
-        
-        console.log('this.offset = ' + this.offset);
 
 
         let detailedPokemons = [];
@@ -150,7 +153,7 @@ export default {
         this.error = null;
 
         while (detailedPokemons.length < this.perPage) {
-          const response = await fetchPokemon(this.perPage, this.offset);
+          const response = await fetchPokemon(this.perPage, this.Offset);
           if (!response.results.length) {
             break;
           }
@@ -165,6 +168,7 @@ export default {
                 ? response2.types.some((type) => type.type.name === this.selectedType2)
                 : true;
               //console.log(response2.id + '|' + response2.name );
+              this.actual_id = response2.id;
               if (matchesType1 && matchesType2) {
                 return {
                   name: pokemon.name,
@@ -193,14 +197,14 @@ export default {
           const filteredResults = (await Promise.all(detailPromises)).filter(Boolean);
           detailedPokemons = [...detailedPokemons, ...filteredResults];
 
-          this.offset += this.perPage;
+          //console.log('this.Offset = ' + this.Offset + ' | this.perPage = ' + this.perPage);
+          this.Offset = this.Offset + this.perPage;
+
+
           //fetch more pokemon to fill the page with match to filter
         }
-        //lastoffest = minimum id of the last pokemon in the list
-        if (this.selectedType1 != "" | this.selectedType2 != "") {
-          for(let i =0; i < this.pokemons.length; i++){
-            this.lastOffset = Math.min(...this.pokemons.map((pokemon) => pokemon.id));
-          }}
+        //lastOffset = minimum id of the last pokemon in the list
+
         this.pokemons = detailedPokemons.slice(0, this.perPage);
       } catch (error) {
         console.error("Erreur lors de la récupération des Pokémon :", error);
@@ -209,8 +213,17 @@ export default {
         this.isLoading = false;
       }
       this.stopTimer;
-      console.log('Nbtest = ' + this.Nbtest);
-      this.restarSearch = this.Nbtest;
+        this.last_id = this.pokemons[this.pokemons.length - 1].id;
+        this.first_id = this.pokemons[0].id;
+          console.log('-------------')
+          console.log('min id: ' + this.first_id)
+          console.log('max id: '+ this.last_id)
+
+          console.log('last offset : ' + this.lastOffset)
+          console.log('nb de test: ' + this.Nbtest)
+
+          console.log('-------------')
+
       this.Nbtest = 0;
     },
     toggleShiny() {
@@ -221,32 +234,30 @@ export default {
       this.selectedType2 = "";
       this.priceOrder = "";
       this.currentPage = 0;
-      this.offset = 0;
+      this.Offset = 0;
       this.lastOffset = 0;
+      console.clear();
       this.fetchPokemon();
     },
     fetchPreviousPage() {
       if (this.currentPage > 0) {
         this.currentPage--;
         if (this.selectedType1 != "" | this.selectedType2 != "") {
-            this.offset = this.lastOffset
-          console.log('previous filter offset = ' + this.offset);
-          console.log('filter offset = ' + this.offset);
+            this.Offset = this.lastOffset
         }else{
-        this.offset = this.currentPage * this.perPage;
+        this.Offset = this.currentPage * this.perPage;
         } 
         this.fetchPokemon();
       }
     },
     fetchNextPage() {
-      //offest = max id of the last pokemon in the list
+      //Offset = max id of the last pokemon in the list
       if (this.currentPage < 43 && this.pokemons.length === this.perPage) {
         this.currentPage++;
         if (this.selectedType1 != "" | this.selectedType2 != "") {
-          this.offset = Math.max(...this.pokemons.map((pokemon) => pokemon.id));
-          //console.log('filter offset = ' + this.offset);
+              this.Offset = this.last_id;
         }else{
-          this.offset = this.currentPage * this.perPage;
+          this.Offset = this.currentPage * this.perPage;
         }
         this.fetchPokemon();
       }
@@ -277,13 +288,13 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100px;
+  height: 200px;
   position: relative;
 }
 
 .spinner {
-  width: 80px;
-  height: 80px;
+  width: 100px;
+  height: 100px;
   border: 8px solid rgba(0, 255, 255, 0.1);
   border-top: 8px solid blue;
   border-bottom: 8px solid blue;
