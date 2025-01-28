@@ -15,7 +15,7 @@
       <button @click="fetchNextPage">Next</button>
     </div>
     <div v-if="showDetail" class="popup" @click="closePopup">
-      <div class="popup-content" @click.stop>
+      <div class="pokemon-card" @click.stop>
       <h2 class="pokemon-name">{{ PokemonDetail.name }}</h2>
       <p class="pokemon-id">ID: {{ PokemonDetail.id }}</p>
       <img :src="PokemonDetail.sprites.front_default" class="pokemon-image" alt="Pokémon image" />
@@ -44,9 +44,8 @@
   </div>
 </template>
 
-
 <script>
-import { fetchPokemon, PokemonDetail, PokemonSearch } from '@/services/httpClient.js';
+import { fetchPokemon, PokemonSearch } from '@/services/httpClient.js';
 
 export default {
   name: 'PokemonList',
@@ -167,74 +166,17 @@ export default {
 }
 .Pokemon_list_template h2 {
   text-align: center;
-  color: #0288d1;
   margin-bottom: 1rem;
   padding: 1rem;
 }
-/* Tooltip for Stats */
-#stats {
-  position: relative;
-  display: inline-block;
-}
 
-.tooltip {
-  cursor: pointer;
-  color: #007bff;
-  font-size: 1.2rem;
-}
-
-.tooltiptext {
-  visibility: hidden;
-  width: 200px;
-  background-color: #555;
-  color: #fff;
-  text-align: center;
-  border-radius: 5px;
-  padding: 5px 10px;
-  position: absolute;
-  z-index: 1;
-  bottom: 125%;
-  left: 50%;
-  margin-left: -100px;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-.tooltip:hover .tooltiptext {
-  visibility: visible;
-  opacity: 1;
-}
-
-/* Buttons */
-#more {
-  margin-top: 1rem;
-  display: flex;
-  justify-content: space-between;
-}
-
-#more button,
-.add-button {
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 5px;
-  background-color: #007bff;
-  color: white;
-  font-size: 1rem;
-  cursor: pointer;
-}
-
-#more button:hover,
-.add-button:hover {
-  background-color: #0056b3;
-}
-
-ul {
+.Pokemon_list ul {
   list-style-type: none;
   padding: 0;
   margin-left: 2rem;
 }
 
-li {
+.Pokemon_list li {
   margin-bottom: 0.5rem;
   padding: 0.5rem;
   border-bottom: 1px solid #ccc;
@@ -273,73 +215,5 @@ li {
   color: #01579b;
 }
 
-.popup {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
 
-.popup-content {
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  text-align: center;
-  width: 300px;
-}
-
-.popup-content h2 {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin: 10px 0;
-  color: #333;
-}
-
-.popup-content p {
-  font-size: 1rem;
-  color: #555;
-  margin: 10px 0;
-}
-
-.popup-content img {
-  max-width: 100%;
-  height: auto;
-  border-radius: 5px;
-}
-
-.popup-content ul {
-  list-style-type: none;
-  padding: 0;
-  margin: 0 10px;
-}
-
-.popup-content li {
-  display: inline-block;
-  background-color: #e0e0e0;
-  border-radius: 5px;
-  padding: 5px 10px;
-  margin: 5px;
-  font-size: 0.9rem;
-  color: #333;
-}
-
-.add-button {
-  background-color: #007bff;
-  color: #fff;
-  padding: 10px 15px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.add-button:hover {
-  background-color: #0056b3;
-}
 </style>
