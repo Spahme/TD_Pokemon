@@ -339,110 +339,22 @@
     padding: 20px;
   }
 
-  .pokemon-card {
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    width: 200px;
-    text-align: center;
-    padding: 15px;
-  }
+.pokemon-card {
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  width: 200px;
+  text-align: center;
+  padding: 15px;
+}
 
-  .pokemon-card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  }
+.pokemon-card:hover {
+  transform: translateY(-50px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
 
-  .pokemon-name {
-    font-size: 1.2rem;
-    font-weight: bold;
-    margin: 10px 0;
-    color: #333;
-  }
 
-  .pokemon-image {
-    max-width: 100%;
-    height: auto;
-    border-radius: 5px;
-  }
-
-  .pokemon-experience {
-    font-size: 1rem;
-    color: #555;
-    margin: 10px 0;
-  }
-
-  .add-button {
-    background-color: #007bff;
-    color: #fff;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  /* Tooltip for Stats */
-  #stats {
-    position: relative;
-    display: inline-block;
-  }
-
-  .tooltip {
-    cursor: pointer;
-    color: #007bff;
-    font-size: 1.2rem;
-  }
-
-  .tooltiptext {
-    visibility: hidden;
-    width: 200px;
-    background-color: #555;
-    color: #fff;
-    text-align: center;
-    border-radius: 5px;
-    padding: 5px 10px;
-    position: absolute;
-    z-index: 1;
-    bottom: 125%;
-    left: 50%;
-    margin-left: -100px;
-    opacity: 0;
-    transition: opacity 0.3s;
-    
-  }
-
-  .tooltip:hover .tooltiptext {
-    visibility: visible;
-    opacity: 1;
-  }
-
-  /* Buttons */
-  #more {
-    margin-top: 1rem;
-    display: flex;
-    justify-content: space-between;
-  }
-
-  #more button,
-  .add-button {
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: 5px;
-    background-color: #007bff;
-    color: white;
-    font-size: 1rem;
-    cursor: pointer;
-  }
-
-  #more button:hover,
-  .add-button:hover {
-    background-color: #0056b3;
-  }
-  .add-button:hover {
-    background-color: #0056b3;
-  }
 
   .error {
     color: red;

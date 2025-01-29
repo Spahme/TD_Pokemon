@@ -27,27 +27,32 @@
       <div v-if="error" class="error">{{ error }}</div>
     </div>
 
-
-    <div class="pokemon-card" v-if="pokemon">
-      <h2 class="pokemon-name">{{ pokemon.name }}</h2>
-      <p class="pokemon-id">ID: {{ pokemon.id }}</p>
-      <img :src="pokemon.sprites.front_default" class="pokemon-image" alt="Pokémon image" />
-      <ul class="pokemon-types">
-        <li>{{ pokemon.type1 }}</li>
-        <li v-if="pokemon.type2">{{ pokemon.type2 }}</li>
-      </ul>
-      <p class="pokemon-price">price: {{ pokemon.price.default }} $</p>
-      <div id="more">      
-        <button id="shiny" @click="toggleShiny">Shiny: {{ isShiny ? 'On' : 'Off' }}</button>
-        <div id="stats">
-            <span v-if="pokemon.stats" class="tooltip"><img src="../assets/tooltips.svg" alt="info" width="20px" height="20px">
-            <span class="tooltiptext">{{ pokemon.stats }}</span>
-          </span>
+      <div class="pokemon-card" v-if="pokemon">
+        <h2 class="pokemon-name">{{ pokemon.name }}</h2>
+        <p class="pokemon-id">ID: {{ pokemon.id }}</p>
+        <img :src="pokemon.sprites.front_default" class="pokemon-image" alt="Pokémon image" />
+        <ul class="pokemon-types">
+          <li>{{ pokemon.type1 }}</li>
+          <li v-if="pokemon.type2">{{ pokemon.type2 }}</li>
+        </ul>
+        <p class="pokemon-price">price: {{ pokemon.price.default }} $</p>
+        <div id="more">      
+          <button id="shiny" @click="toggleShiny">Shiny: {{ isShiny ? 'On' : 'Off' }}</button>
+          <div id="stats">
+            <span v-if="pokemon.stats" class="tooltip">
+              <img src="../assets/tooltips.svg" alt="info" width="20px" height="20px" />
+              <ul class="tooltiptext">
+                <li><strong>Base Stats:</strong></li>
+                <li v-for="stat in pokemon.stats" :key="stat.name">
+                  {{ stat.name }}: {{ stat.base_stat }}
+                </li>
+              </ul>
+            </span>
+          </div>
         </div>
+        <div class="add-button">Acheter</div>
       </div>
-      <div class="add-button">Acheter</div>
     </div>
-  </div>
 </template>
 
 <script>
@@ -131,7 +136,10 @@ export default {
           },
           type1: response.types[0].type.name,
           type2: response.types[1] ? response.types[1].type.name : null,
-          stats: response.stats.map((stat) => `${stat.stat.name}: ${stat.base_stat}`).join(", "),
+          stats: response.stats.map((stat) => ({
+            name: stat.stat.name,
+            base_stat: stat.base_stat,
+          })),
         };
         this.error = null;
       } catch (err) {
@@ -140,6 +148,7 @@ export default {
       } finally {
         this.isLoading = false; // Fin du chargement
       }
+      console.log(this.pokemon);
     },
     toggleShiny() {
       this.isShiny = !this.isShiny;
@@ -178,115 +187,13 @@ export default {
 }
 /* Pokémon Card */
 .pokemon-card {
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  width: 200px;
-  text-align: center;
-  padding: 15px;
   margin: 1rem auto;
-}
-
-.pokemon-card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-}
-
-.pokemon-name {
-  font-size: 1.2rem;
-  font-weight: bold;
-  margin: 10px 0;
-  color: #333;
-}
-
-.pokemon-image {
-  max-width: 100%;
-  height: auto;
-  border-radius: 5px;
-}
-
-.pokemon-price {
-  font-size: 1rem;
-  color: #555;
-  margin: 10px 0;
-}
-
-/* Pokémon Types */
-.pokemon-types ul {
-  list-style-type: none;
-  padding: 0;
-  margin: 0 10px;
-}
-
-.pokemon-types li {
-  display: inline-block;
-  background-color: #e0e0e0;
-  border-radius: 5px;
-  padding: 5px 10px;
-  margin: 5px;
-  font-size: 0.9rem;
-  color: #333;
-}
-
-/* Tooltip for Stats */
-#stats {
-  position: relative;
-  display: inline-block;
-}
-
-.tooltip {
-  cursor: pointer;
-  color: #007bff;
-  font-size: 1.2rem;
-}
-
-.tooltiptext {
-  visibility: hidden;
-  width: 200px;
-  background-color: #555;
-  color: #fff;
-  text-align: center;
-  border-radius: 5px;
-  padding: 5px 10px;
-  position: absolute;
-  z-index: 1;
-  bottom: 125%;
-  left: 50%;
-  margin-left: -100px;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-.tooltip:hover .tooltiptext {
-  visibility: visible;
-  opacity: 1;
-}
-
-/* Buttons */
-#more {
-  margin-top: 1rem;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
-
-#more button,
-.add-button {
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 5px;
-  background-color: #007bff;
-  color: white;
-  font-size: 1rem;
-  cursor: pointer;
-}
-
-#more button:hover,
-.add-button:hover {
-  background-color: #0056b3;
-}
-
+  
 /* Error Messages */
 .error {
   margin-top: 1rem;
