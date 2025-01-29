@@ -30,8 +30,7 @@ html {
     color: #007bff;
     font-size: 1.2rem;
   }
-  
-  .tooltiptext {
+  .tooltiptext{
     visibility: hidden;
     width: 200px;
     background-color: #555;
@@ -41,11 +40,17 @@ html {
     padding: 5px 10px;
     position: absolute;
     z-index: 1;
-    bottom: 125%;
-    left: 50%;
-    margin-left: -100px;
     opacity: 0;
     transition: opacity 0.3s;
+  }
+  .Pokedex_template .tooltiptext{
+    bottom: 125%;
+    right: 0;
+  }
+  .Pokemon_list_template .tooltiptext,
+  .Poke_Search_Templates .tooltiptext {
+    bottom: 125%;
+    left: 50%;
   }
   
   .tooltip:hover .tooltiptext {

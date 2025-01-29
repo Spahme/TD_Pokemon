@@ -1,5 +1,5 @@
 <template>
-  <div class="Pokemon_list_template">
+  <div class="Pokedex_template">
     <h2>Pokemon List</h2>
     <div v-if="error" class="error">{{ error }}</div>
 
@@ -352,9 +352,7 @@ padding: 15px;
 .pokemon-card:hover {
   transform: translateY(-50px);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  }
-
-
+}
 
 .error {
   color: red;
@@ -399,21 +397,7 @@ padding: 15px;
   font-size: 1.2rem;
   color: #01579b;
 }
-.pokemon-types ul {
-  list-style-type: none;
-  padding: 0;
-  margin: 0 auto;
-}
 
-.pokemon-types li {
-  display: inline-block;
-  background-color: #e0e0e0;
-  border-radius: 5px;
-  padding: 5px 10px;
-  margin: 5px;
-  font-size: 0.9rem;
-  color: #333;
-}
 /* Styles for the select elements */
 #filter {
   display: flex;
