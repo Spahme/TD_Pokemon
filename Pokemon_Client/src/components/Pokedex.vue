@@ -344,15 +344,15 @@ background-color: #fff;
 border-radius: 10px;
 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 transition: transform 0.3s ease, box-shadow 0.3s ease;
-width: 200px;
+width: 250px;
 text-align: center;
 padding: 15px;
 }
 
 .pokemon-card:hover {
-transform: translateY(-50px);
-box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-}
+  transform: translateY(-50px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  }
 
 
 
