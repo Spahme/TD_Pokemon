@@ -46,7 +46,7 @@
 
 
 <script>
-import { fetchPokemon, PokemonDetail, PokemonSearch } from '@/services/httpClient.js';
+import { fetchPokemon, PokemonSearch } from '@/services/httpClient.js';
 
 export default {
   name: 'PokemonList',
