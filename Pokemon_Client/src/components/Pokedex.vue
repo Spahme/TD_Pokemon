@@ -19,15 +19,15 @@
         @change="fetchPokemon"
       >
         <option value="">Type 2</option>
-        <option v-for="type in types" :key="type" :value="type">
+        <option
+          v-for="type in filteredTypesForSecond"
+          :key="type"
+          :value="type"
+        >
           {{ type }}
         </option>
       </select>
-      <select id="prices" v-model="priceOrder" @change="sortPokemons">
-        <option value="">Price</option>
-        <option value="asc">Ascending</option>
-        <option value="desc">Descending</option>
-      </select>
+
       <button id="shiny" @click="toggleShiny">Shiny: {{ isShiny ? 'On' : 'Off' }}</button>
       <button @click="resetFilters">Reset</button>
     </div>
@@ -86,7 +86,6 @@ export default {
       types: [],
       selectedType1: "",
       selectedType2: "",
-      priceOrder: "", // Tri par prix
       isShiny: false, // Toggle shiny sprite
       Nbtest: 0, // Counter for test
       restarSearch: null, 
@@ -112,13 +111,6 @@ export default {
         return type1Match && type2Match;
       });
 
-      // Tri global par prix
-      if (this.priceOrder === "asc") {
-        filtered.sort((a, b) => a.base_experience - b.base_experience);
-      } else if (this.priceOrder === "desc") {
-        filtered.sort((a, b) => b.base_experience - a.base_experience);
-      }
-
       return filtered;
     },
     paginatedPokemons() {
@@ -137,6 +129,10 @@ export default {
       console.log('load time = ' + this.loadingTime +"s");
       clearInterval(this.loadTimer);
       this.loadTimer = null;
+    },
+    filteredTypesForSecond() {
+        // Retourne tous les types sauf celui sélectionné dans Type 1
+        return this.types.filter(type => type !== this.selectedType1);
     },
   },
   methods: {
@@ -344,10 +340,21 @@ export default {
 }
 
 .pokemon-card {
-  width: 200px;
-  text-align: center;
-  padding: 15px;
+background-color: #fff;
+border-radius: 10px;
+box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+transition: transform 0.3s ease, box-shadow 0.3s ease;
+width: 200px;
+text-align: center;
+padding: 15px;
 }
+
+.pokemon-card:hover {
+transform: translateY(-50px);
+box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+
 
 .error {
   color: red;
@@ -440,4 +447,89 @@ export default {
   color: #999;
   cursor: not-allowed;
 }
+#filter {
+display: flex;
+justify-content: space-around;
+align-items: center;
+gap: 15px;
+padding: 10px 20px;
+margin-bottom: 20px;
+background-color: #f9f9f9;
+border: 1px solid #ddd;
+border-radius: 10px;
+box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+width: 50%;
+margin: 0 auto;
+}
+
+.type-select {
+padding: 10px 15px;
+border: 1px solid #ddd;
+border-radius: 8px;
+background-color: #ffffff;
+font-size: 1rem;
+color: #555;
+transition: all 0.3s ease;
+cursor: pointer;
+}
+
+.type-select:focus {
+border-color: #0288d1;
+box-shadow: 0 0 5px rgba(2, 136, 209, 0.5);
+outline: none;
+}
+
+.type-select:disabled {
+background-color: #f0f0f0;
+color: #999;
+cursor: not-allowed;
+}
+
+button {
+padding: 10px 20px;
+border: none;
+border-radius: 8px;
+font-size: 1rem;
+font-weight: bold;
+cursor: pointer;
+transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+#shiny {
+background-color: #ffeb3b;
+color: #333;
+}
+
+#shiny:hover {
+background-color: #fdd835;
+}
+
+button:hover {
+transform: scale(1.05);
+}
+
+button:disabled {
+background-color: #ccc;
+color: #666;
+cursor: not-allowed;
+}
+
+button:hover:not(:disabled) {
+background-color: #0288d1;
+color: white;
+}
+
+button:active {
+transform: scale(0.98);
+}
+
+button:last-of-type {
+background-color: #f44336;
+color: white;
+}
+
+button:last-of-type:hover {
+background-color: #e53935;
+}
+
 </style>
