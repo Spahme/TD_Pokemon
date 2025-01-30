@@ -1,24 +1,37 @@
-<script setup>
-import { RouterLink, RouterView } from 'vue-router' 
-</script>
-
 <template>
   <header>
-      <h1>Pokemon App</h1>
-
-      <nav>
-        <RouterLink :to="{name:'home'}">Home</RouterLink>
-        <RouterLink :to="{name:'listPokemons'}">List de pokemon</RouterLink>
-        <RouterLink :to="{name:'searchPokemon'}">Recherche de pokemon</RouterLink>
-        <RouterLink :to="{name:'pokedexAll'}">Pokedex</RouterLink>
-        <RouterLink :to="{name:'panier'}">Panier</RouterLink>
-
-      </nav>
+    <h1>Pokemon App</h1>
+    <nav>
+      <RouterLink :to="{ name: 'home' }">Home</RouterLink>
+      <RouterLink :to="{ name: 'listPokemons' }">Liste de Pokémon</RouterLink>
+      <RouterLink :to="{ name: 'searchPokemon' }">Recherche de Pokémon</RouterLink>
+      <RouterLink :to="{ name: 'pokedexAll' }">Pokedex</RouterLink>
+      <RouterLink :to="{ name: 'panier' }">Panier</RouterLink>
+      
+      <ul>
+        <li>
+          <p v-if='pokemons===null' >Nombre de Pokémon dans le panier: {{ pokemons.length }}</p>
+        </li>
+        <li>
+          <p v-if="totalPrice===null">Total : {{ totalPrice }} $</p>
+        </li>
+      </ul> 
+    </nav>
   </header>
   <main> 
     <RouterView />
   </main>
 </template>
+
+<script setup>
+import { RouterLink, RouterView } from 'vue-router';
+import { usePokemonStore } from '@/stores.js';
+import { mapState } from 'pinia';
+
+const pokemonStore = usePokemonStore();
+const pokemons = mapState(pokemonStore, ['pokemons']);
+const totalPrice = mapState(pokemonStore, ['totalPrice']);
+</script>
 
 
 <style scoped>

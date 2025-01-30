@@ -3,7 +3,7 @@ import App from '@/App.vue'
 import Pokemon_list_template from './components/Poke_list.vue'
 import Poke_Search_Templates from './components/Poke_search.vue'
 import Pokedex from './components/Pokedex.vue'
-import Panier from './components/Panier.vue'
+import Pokemon_Panier_template from './components/Panier.vue'
 
 const routes = [{
         path: '/list/pokemons',
@@ -28,7 +28,7 @@ const routes = [{
     {
         path: '/panier',
         name: 'panier',
-        component: Panier,
+        component: Pokemon_Panier_template,
     },
 ]
 

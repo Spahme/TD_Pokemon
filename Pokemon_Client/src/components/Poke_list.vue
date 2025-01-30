@@ -38,7 +38,7 @@
           </span>
         </div>
       </div>
-        <div class="add-button" @click="buy(pokemon.id, this.isShiny)">Acheter</div>
+        <div class="add-button" @click="buy(PokemonDetail.id, this.isShiny)">Acheter</div>
 
       </div>
     </div>
@@ -47,6 +47,8 @@
 
 <script>
 import { fetchPokemon, PokemonSearch } from '@/services/httpClient.js';
+import {usePokemonStore} from '@/stores.js';
+import {mapState} from 'pinia';
 
 export default {
   name: 'PokemonList',
@@ -63,6 +65,9 @@ export default {
       isShiny: false,
     };
   },
+  computed: {
+    ...mapState(usePokemonStore, ['AddPokemon']),
+},
   methods: {
     async fetchPokemon() {
       try {
@@ -143,6 +148,7 @@ export default {
       }
     },
     buy(id, shiny) {
+      this.AddPokemon({ id, shiny });
       console.log(`Achat du Pokémon ${id} ${shiny}`);
     },
   },
