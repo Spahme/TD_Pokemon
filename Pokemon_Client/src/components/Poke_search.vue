@@ -50,7 +50,7 @@
             </span>
           </div>
         </div>
-        <div class="add-button">Acheter</div>
+        <div class="add-button" @click="buy(pokemon.id, this.isShiny)">Acheter</div>
       </div>
     </div>
 </template>
@@ -159,6 +159,9 @@ export default {
         document.getElementsByClassName("pokemon-image")[0].src = this.pokemon.sprites.front_default;
         document.getElementsByClassName("pokemon-price")[0].textContent = `price: ${this.pokemon.price.default} $`;
       }
+    },
+    buy(id, shiny) {
+      console.log(`Achat du Pokémon ${id} ${shiny}`);
     },
   },
   mounted() {

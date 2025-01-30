@@ -58,7 +58,7 @@
             </span>
           </div>
         </div>
-        <div class="add-button">Acheter</div>
+        <div class="add-button" @click="buy(pokemon.id, this.isShiny)">Acheter</div>
       </div>
     </div>
     <div class="pagination">
@@ -197,9 +197,7 @@ export default {
           this.Offset = this.Offset + this.perPage;
 
 
-          //fetch more pokemon to fill the page with match to filter
         }
-        //lastOffset = minimum id of the last pokemon in the list
 
         this.pokemons = detailedPokemons.slice(0, this.perPage);
       } catch (error) {
@@ -247,7 +245,6 @@ export default {
       }
     },
     fetchNextPage() {
-      //Offset = max id of the last pokemon in the list
       if (this.currentPage < 43 && this.pokemons.length === this.perPage) {
         this.currentPage++;
         if (this.selectedType1 != "" | this.selectedType2 != "") {
@@ -270,6 +267,9 @@ export default {
         console.error("Erreur lors de la récupération des types :", error);
         this.error = "Une erreur est survenue lors de la récupération des types.";
       }
+    },
+    buy(id, shiny) {
+      console.log(`Achat du Pokémon ${id} ${shiny}`);
     },
   },
   mounted() {

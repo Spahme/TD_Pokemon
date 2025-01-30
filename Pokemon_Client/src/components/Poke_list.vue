@@ -38,7 +38,8 @@
           </span>
         </div>
       </div>
-      <div class="add-button">Acheter</div>
+        <div class="add-button" @click="buy(pokemon.id, this.isShiny)">Acheter</div>
+
       </div>
     </div>
   </div>
@@ -140,6 +141,9 @@ export default {
         console.error('Erreur lors de la récupération des types :', error);
         this.error = 'Une erreur est survenue lors de la récupération des types.';
       }
+    },
+    buy(id, shiny) {
+      console.log(`Achat du Pokémon ${id} ${shiny}`);
     },
   },
   mounted() {
